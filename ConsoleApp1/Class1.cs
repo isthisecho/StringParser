@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
+using System.IO;
 using System.Globalization;
 
 namespace ConsoleApp1
@@ -13,36 +14,41 @@ namespace ConsoleApp1
     { 
         public static void Main()
         {
-            System.Globalization.CultureInfo invariant = CultureInfo.InvariantCulture;
-            System.Globalization.CultureInfo en = CultureInfo.GetCultureInfo("en-us");
-            System.Globalization.CultureInfo tr = CultureInfo.GetCultureInfo("tr-tr");
+            string path = Environment.CurrentDirectory;
 
-            double d2 = double.Parse("1,250.315", invariant);
-            double d1 = double.Parse("1.250,315", tr);
+            string i = System.IO.File.ReadAllText(System.IO.Path.Combine(path, "test.txt"));
 
-            string e1= d1.ToString(en);
-            string e2= d1.ToString(tr);
+            //var q123123 = 0;
+            //System.Globalization.CultureInfo invariant = CultureInfo.InvariantCulture;
+            //System.Globalization.CultureInfo en = CultureInfo.GetCultureInfo("en-us");
+            //System.Globalization.CultureInfo tr = CultureInfo.GetCultureInfo("tr-tr");
+            //
+            //double d2 = double.Parse("1,250.315", invariant);
+            //double d1 = double.Parse("1.250,315", tr);
+            //
+            //string e1= d1.ToString(en);
+            //string e2= d1.ToString(tr);
+            //
+            //double pi = 3.14;
+            //
+            //X xx = new X("aabb");
+            //
+            //bool b1 = xx.Try("aa");
+            //bool b2 = xx.Try("bb");
+            //
+            //bool b0 = xx.TryRead("cc", out string xx0);
+            //bool b3 = xx.TryRead("aa", out string xx1);
+            //bool b4 = xx.TryRead("bb", out string xx2);
+            //
+            //
+            //
+            ////X x = new X("1 + /*comment*/ 2");
+            ////X  x = new X("    a   true     false   +       b  /*cmmn*/    +     1    +     2     +     xx    +     123    +     a15   ");
 
-            double pi = 3.14;
+//            string code = @"1 + /*comment*/ 2 + 3 ;//başka comment
+//a + b";
 
-            X xx = new X("aabb");
-
-            bool b1 = xx.Try("aa");
-            bool b2 = xx.Try("bb");
-
-            bool b0 = xx.TryRead("cc", out string xx0);
-            bool b3 = xx.TryRead("aa", out string xx1);
-            bool b4 = xx.TryRead("bb", out string xx2);
-
-
-
-            //X x = new X("1 + /*comment*/ 2");
-            //X  x = new X("    a   true     false   +       b  /*cmmn*/    +     1    +     2     +     xx    +     123    +     a15   ");
-
-            string code = @"1 + /*comment*/ 2 + 3 ;//başka comment
-a + b";
-
-            X x = new X(code);
+            X x = new X(fileContent);
          
 
           while(!x.IsEnd)
