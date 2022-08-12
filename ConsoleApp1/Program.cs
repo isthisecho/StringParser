@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Text;
+using System.Xml.Linq;
+
 namespace ConsoleApp1
 {
     class X
@@ -25,7 +27,6 @@ namespace ConsoleApp1
         public char Peek(int offset)
         {
             return Input.ElementAtOrDefault(Index + offset);
-            //return Input[Index + offset];
         }
         public char Read()
         {
@@ -88,19 +89,71 @@ namespace ConsoleApp1
             return identifier.Length > 0;
 
         }
+        public string DecodeFromUtf8(string utf8String)
+        {
+            // copy the string as UTF-8 bytes.
+            byte[] utf8Bytes = new byte[utf8String.Length];
+            for (int i = 0; i < utf8String.Length; ++i)
+            {
+                //Debug.Assert( 0 <= utf8String[i] && utf8String[i] <= 255, "the char must be in byte's range");
+                utf8Bytes[i] = (byte)utf8String[i];
+            }
+
+            return Encoding.UTF8.GetString(utf8Bytes, 0, utf8Bytes.Length);
+        }
+
         public bool TryReadNumber(out string number)
         {
+
+            Func<char, bool> ilkKarakerKontrolu = c => char.IsDigit(c);
+            Func<char, bool> karakerKontrolu = c => char.IsPunctuation(c) || char.IsDigit(c);
+
+            Func<char, bool> fn = ilkKarakerKontrolu;
+
+            int currentIndex = Index;
             StringBuilder sb = new StringBuilder();
 
             while (!IsEnd)
-                if (char.IsDigit(Peek()))
+            {
+                if (fn(Peek()))
                     sb.Append(Read());
                 else
                     break;
+                fn = karakerKontrolu;
+            }
 
             number = sb.ToString();
             return number.Length > 0;
         }
+
+        public bool TryReadString(string quoteType,out string str)
+        {
+            StringBuilder sb = new StringBuilder();
+
+            if (TryRead(quoteType, out string quote))
+            {
+                sb.Append(quote);
+              
+                while (!TryRead(quoteType, out string endStr))
+                {
+
+                    if (Try("\\", out string quot))
+                    { 
+                        sb.Append(Read());
+                    }             
+                    sb.Append(Read());
+
+                }
+                sb.Append(quote);
+
+            }
+
+
+            str = sb.ToString();
+            return str.Length > 0;
+        }
+
+
         public bool TryReadComments(string start, string end, out string comment)
         {
             StringBuilder sb = new StringBuilder();
@@ -117,64 +170,30 @@ namespace ConsoleApp1
             comment = sb.ToString();
             return comment.Length > 0;
 
-            //Func<char, bool> commentControl = c => c == '/';
-            //Func<char, bool> asteriskControl = c => c == '*';
-            //Func<char, bool> fn = commentControl;
-            //Func<char, bool> fn1 = asteriskControl;
-
-            //StringBuilder sb = new StringBuilder();
-            //
-            ////while (!IsEnd)
-            ////{
-            ////    if (fn(Peek()) && fn1(Peek(1)))
-            ////        while (!(fn1(Peek()) && fn(Peek(1))))
-            ////            sb.Append(Read());
-            ////    else
-            ////        break;
-            ////}
-            //comment = sb.ToString();
-            //return comment.Length > 0;
+         
         }
-        public bool TryReadBooleans(out string boolean)
+        public bool TryReadBooleans(string booleanCheck , out string? boolean)
         {
-            int currentIndex = Index;
+              int currentIndex = Index;
+     
 
-            if (TryReadIdentifier(out string id))
-            {
-                if (string.Equals(id, "true", StringComparison.OrdinalIgnoreCase))
-                {
-                    boolean = id;
-                    return true;
-                }
-                else if (string.Equals(id, "false", StringComparison.OrdinalIgnoreCase))
-                {
-                    boolean = id;
-                    return true;
-                }
-            }
+           if (TryReadIdentifier(out string id))
+           {
+               if (string.Equals(id, "true", StringComparison.OrdinalIgnoreCase))
+               {
+                   boolean = id;
+                   return true;
+               }
+               else if (string.Equals(id, "false", StringComparison.OrdinalIgnoreCase))
+               {
+                   boolean = id;
+                   return true;
+               }
+           }
 
-            Index = currentIndex;
-            boolean = null;
-            return false;
-            //Func<char, bool> ilkKarakerKontrolu = c => c =='f'|| c == 't';
-            //Func<char, bool> karakerKontrolu = c => char.IsLetter(c) ;
-            //Func<string, bool> booleanControl = b => b=="true" || b=="false";
-            //Func<char, bool> fn = ilkKarakerKontrolu;
-            //Func<string, bool> fnBool = booleanControl;
-            //StringBuilder sb = new StringBuilder();
-            //
-            //while (!IsEnd)
-            //{
-            //    if (fn(Peek()) && !fnBool(sb.ToString()))
-            //        sb.Append(Read());
-            //    else
-            //        break;
-            //    fn = karakerKontrolu;
-            //}
-            //
-            //boolean = sb.ToString();
-            //return boolean.Length>0;
-
+           Index = currentIndex;
+           boolean = null;
+           return false;   
         }
         public bool TryReadOperators(out string symbol)
         {
@@ -190,7 +209,6 @@ namespace ConsoleApp1
             symbol = sb.ToString();
             return symbol.Length > 0;
         }
-
         public bool Try(char c)
         {
             return Peek() == c;
@@ -205,10 +223,12 @@ namespace ConsoleApp1
             r = sb.ToString();
             return string.Equals(str, r, comparison);
         }
+
         public bool Try(string str, StringComparison comparison = StringComparison.OrdinalIgnoreCase)
         {
             return Try(str, out _, comparison);
         }
+
         public bool TryRead(string str, out string r, StringComparison comparison = StringComparison.OrdinalIgnoreCase)
         {
             if (Try(str, out r))
