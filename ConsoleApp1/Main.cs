@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 using System.IO;
 using System.Globalization;
 
-namespace ConsoleApp1
+namespace StringParse
 {
     class Example
     { 
@@ -49,9 +49,8 @@ namespace ConsoleApp1
 
 
             X x = new X(fileContent);
-         
 
-          while(!x.IsEnd)
+            while (!x.IsEnd)
           {
               x.SkipWhileWhiteSpace();
           
@@ -63,18 +62,19 @@ namespace ConsoleApp1
                   Console.WriteLine($"{n} : Number");
               else if (x.TryReadString("\"",out string str))
                   Console.WriteLine($"{str} : String");
-              else if (x.TryReadOperators(out string symbol))
-                  Console.WriteLine($"{symbol} : Symbol");
+              else if (x.TryReadOperators(out string Operator))
+                  Console.WriteLine($"{Operator} : Operator");
               else if (x.TryReadComments("/*", "*/", out string comment)
                     || x.TryReadComments("//", "\r\n", out comment))
+
                   Console.WriteLine($"{comment} : Comment");
               else
-                  Console.WriteLine(x.Read());
-                  //Console.WriteLine(x.DecodeFromUtf8(x.Input));
-              //  Console.WriteLine("sadasd\'sdasd");
-           
-          
+                  Console.WriteLine(x.Read());            
           }
+            ShuntingYard sy = new ShuntingYard("2+5*3/7");
+        
+            Console.WriteLine(sy.infixToPostfix());
+
         }
 
     }

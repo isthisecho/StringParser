@@ -2,7 +2,7 @@
 using System.Text;
 using System.Xml.Linq;
 
-namespace ConsoleApp1
+namespace StringParse
 {
     class X
     {
@@ -10,6 +10,8 @@ namespace ConsoleApp1
         public int Index { get; set; }
         public int Length { get; }
         public bool IsEnd => Index >= Length;
+
+
         public X(string input)
         {
             Input = input;
@@ -18,8 +20,6 @@ namespace ConsoleApp1
         }
 
    
-    
-
         public char Peek()
         {
             return Input[Index];
@@ -91,11 +91,11 @@ namespace ConsoleApp1
         }
         public string DecodeFromUtf8(string utf8String)
         {
-            // copy the string as UTF-8 bytes.
+           
             byte[] utf8Bytes = new byte[utf8String.Length];
             for (int i = 0; i < utf8String.Length; ++i)
             {
-                //Debug.Assert( 0 <= utf8String[i] && utf8String[i] <= 255, "the char must be in byte's range");
+            
                 utf8Bytes[i] = (byte)utf8String[i];
             }
 
@@ -106,7 +106,7 @@ namespace ConsoleApp1
         {
 
             Func<char, bool> ilkKarakerKontrolu = c => char.IsDigit(c);
-            Func<char, bool> karakerKontrolu = c => char.IsPunctuation(c) || char.IsDigit(c);
+           // Func<char, bool> karakerKontrolu = c => char.IsPunctuation(c) || char.IsDigit(c);
 
             Func<char, bool> fn = ilkKarakerKontrolu;
 
@@ -119,7 +119,7 @@ namespace ConsoleApp1
                     sb.Append(Read());
                 else
                     break;
-                fn = karakerKontrolu;
+              //  fn = karakerKontrolu;
             }
 
             number = sb.ToString();
@@ -130,21 +130,20 @@ namespace ConsoleApp1
         {
             StringBuilder sb = new StringBuilder();
 
-            if (TryRead(quoteType, out string quote))
+            if (TryRead(quoteType, out string quoteSymbol))
             {
-                sb.Append(quote);
+                sb.Append(quoteSymbol);
               
                 while (!TryRead(quoteType, out string endStr))
                 {
-
-                    if (Try("\\", out string quot))
+                    if (TryRead("\\", out string slash))
                     { 
-                        sb.Append(Read());
+                        sb.Append(slash);
                     }             
                     sb.Append(Read());
 
                 }
-                sb.Append(quote);
+                sb.Append(quoteSymbol);
 
             }
 
@@ -160,10 +159,8 @@ namespace ConsoleApp1
 
             if (TryRead(start, out string startStr))
             {
-                //sb.Append(startStr);
                 while(!TryRead(end, out string endStr))
-                    sb.Append(Read());
-                //sb.Append(end);
+                    sb.Append(Read()); 
             }
 
 
@@ -197,11 +194,11 @@ namespace ConsoleApp1
         }
         public bool TryReadOperators(out string symbol)
         {
-        
+            Func<char, bool> operatorKontrol = c =>  c == '+' || c == '-' || c == '*' || c == '/' || c == '^';
             StringBuilder sb = new StringBuilder();
 
             while (!IsEnd)
-                if (char.IsSymbol(Peek()))
+                if (operatorKontrol(Peek()))
                     sb.Append(Read());
                 else
                     break;
@@ -209,6 +206,9 @@ namespace ConsoleApp1
             symbol = sb.ToString();
             return symbol.Length > 0;
         }
+
+
+        
         public bool Try(char c)
         {
             return Peek() == c;
@@ -241,4 +241,9 @@ namespace ConsoleApp1
 
 
     }
+
+   
+
 }
+
+
