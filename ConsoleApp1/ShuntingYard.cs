@@ -8,12 +8,14 @@ namespace StringParse
 {
     class ShuntingYard
     {
-        public string Input { get; set; }
+        //public string Input { get; set; }
 
-        public ShuntingYard(string input)
-        {
-            Input = input;
-        }
+        //public ShuntingYard(string input)
+        //{
+        //    Input = input;
+        //}
+        Stack<char> stack = new Stack<char>() { };
+        Queue<char> queue = new Queue<char>();
         Dictionary<char,int> OpsPrecedence = new Dictionary<char,int>()
         {
             {'-',1},
@@ -23,31 +25,45 @@ namespace StringParse
             {'^',3},
         };
 
-        public string infixToPostfix()
+
+        public void Add(char c)
+        {
+            if (stack.Count == 0)
+                stack.Push(c);
+            
+
+            else if (OpsPrecedence.TryGetValue(c, out int val1) && OpsPrecedence.TryGetValue(stack.Peek(), out int val2))
+            {
+                if (val1 <= val2)
+                    stack.Push(c);
+                queue.Enqueue(stack.Pop());
+            }
+            else if (char.IsDigit(c))
+                queue.Enqueue(c);                            
+        }
+        public string  Print()
         {
             StringBuilder sb = new StringBuilder();
-            Stack <char> stack = new Stack<char>();
-            Queue <char> queue = new Queue<char>();
-            foreach (var item in Input)
+            while (queue.Count <= 0)
             {
-                if (OpsPrecedence.TryGetValue(item, out int _))
-                    stack.Push(item);
-                else if (char.IsDigit(item))
-                    queue.Enqueue(item);
+                sb.Append(queue.Dequeue()); 
             }
-            while(queue.Count > 0)
-            {
-                sb.Append(queue.Dequeue());
-            }
-            while (stack.Count > 0)
-            {
-                sb.Append(stack.Pop());
-            }
-
-
-          
             return sb.ToString();
+
+         
         }
+
+    
+
+
+
+
+                
+
+
+
+
+
 
 
 
